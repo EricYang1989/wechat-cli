@@ -195,7 +195,15 @@ def _format_app_message_text(content, local_type, is_group, chat_username, chat_
                                 return f"[文件] {title}\n  {os.path.join(file_dir, f)}"
         return f"[文件] {title}" if title else "[文件]"
     if app_type == 5:
-        return f"[链接] {title}" if title else "[链接]"
+        # 链接/公众号文章消息：URL 在 <appmsg><url> 里，一并输出便于下游抓正文
+        link_url = _collapse_text(appmsg.findtext('url') or '')
+        if title and link_url:
+            return f"[链接] {title}\n  {link_url}"
+        if title:
+            return f"[链接] {title}"
+        if link_url:
+            return f"[链接] {link_url}"
+        return "[链接]"
     if app_type in (33, 36, 44):
         return f"[小程序] {title}" if title else "[小程序]"
     if title:
